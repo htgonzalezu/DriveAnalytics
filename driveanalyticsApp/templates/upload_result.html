@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultado de Carga - DriveAnalytics</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .alert {
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 1.1rem;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            border: 2px solid #28a745;
+            color: #155724;
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            border: 2px solid #dc3545;
+            color: #721c24;
+        }
+
+        .alert-icon {
+            font-size: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .stat-value.success {
+            color: #28a745;
+        }
+
+        .stat-value.warning {
+            color: #ffc107;
+        }
+
+        .stat-value.info {
+            color: #17a2b8;
+        }
+
+        .errors-section {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .errors-section h3 {
+            color: #856404;
+            margin-bottom: 15px;
+        }
+
+        .error-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .error-list li {
+            padding: 10px;
+            background: white;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border-left: 4px solid #ffc107;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .summary {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .summary h3 {
+            color: #1976D2;
+            margin-bottom: 15px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #bbdefb;
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+
+        .summary-label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .summary-value {
+            color: #333;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚗 DriveAnalytics</h1>
+            <p>Resultado de Carga de Datos</p>
+        </div>
+
+        <div class="content">
+            {% if success %}
+                <div class="alert alert-success">
+                    <span class="alert-icon">✅</span>
+                    <div>
+                        <strong>¡Éxito!</strong><br>
+                        {{ message }}
+                    </div>
+                </div>
+
+                {% if statistics %}
+                <div class="summary">
+                    <h3>📊 Resumen del Procesamiento</h3>
+                    <div class="summary-item">
+                        <span class="summary-label">Archivo procesado:</span>
+                        <span class="summary-value">{{ filename }}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Filas originales:</span>
+                        <span class="summary-value">{{ statistics.original_rows }}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Filas limpias:</span>
+                        <span class="summary-value">{{ statistics.cleaned_rows }}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Filas removidas:</span>
+                        <span class="summary-value">{{ statistics.removed_rows }}</span>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Nuevos Registros</div>
+                        <div class="stat-value success">{{ statistics.uploaded_count }}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Actualizados</div>
+                        <div class="stat-value info">{{ statistics.updated_count }}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Errores</div>
+                        <div class="stat-value {% if statistics.error_count > 0 %}warning{% else %}success{% endif %}">
+                            {{ statistics.error_count }}
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Total en BD</div>
+                        <div class="stat-value info">{{ statistics.total_in_database }}</div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if errors %}
+                <div class="errors-section">
+                    <h3>⚠️ Errores Encontrados ({{ errors|length }})</h3>
+                    <ul class="error-list">
+                        {% for error in errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% if more_errors %}
+                    <p style="margin-top: 10px; color: #856404;">
+                        <strong>+ {{ more_errors }} errores adicionales</strong>
+                    </p>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+            {% else %}
+                <div class="alert alert-error">
+                    <span class="alert-icon">❌</span>
+                    <div>
+                        <strong>Error</strong><br>
+                        {{ error }}
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="buttons">
+                <a href="{% url 'lista_vehiculos' %}" class="btn btn-primary">
+                    📋 Ver Lista de Vehículos
+                </a>
+                <a href="{% url 'index' %}" class="btn btn-secondary">
+                    🔙 Volver al Inicio
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

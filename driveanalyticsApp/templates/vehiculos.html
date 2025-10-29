@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehículos - DriveAnalytics</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header-content h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .header-content p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .stat-badge .number {
+            font-size: 2rem;
+            font-weight: bold;
+            display: block;
+        }
+
+        .stat-badge .label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .controls {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-select {
+            padding: 12px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .vehicles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .vehicle-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .vehicle-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .vehicle-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .vehicle-id {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .vehicle-status {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .vehicle-status.disponible {
+            background: #28a745;
+        }
+
+        .vehicle-status.vendido {
+            background: #dc3545;
+        }
+
+        .vehicle-status.reservado {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .vehicle-status.mantenimiento {
+            background: #17a2b8;
+        }
+
+        .vehicle-body {
+            padding: 25px;
+        }
+
+        .vehicle-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .vehicle-subtitle {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .vehicle-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-label {
+            font-size: 0.85rem;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            font-size: 1.1rem;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .vehicle-price {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .price-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .price-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        .vehicle-footer {
+            border-top: 2px solid #f0f0f0;
+            padding: 15px 25px;
+            background: #fafafa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .empty-state {
+            background: white;
+            border-radius: 15px;
+            padding: 60px 40px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .empty-state-icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h2 {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .empty-state p {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 15px 30px;
+            background: white;
+            border-radius: 10px;
+            text-align: center;
+            text-decoration: none;
+            color: #667eea;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                text-align: center;
+            }
+
+            .header-content h1 {
+                font-size: 2rem;
+            }
+
+            .vehicles-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .vehicle-details {
+                grid-template-columns: 1fr;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        /* Type icons */
+        .type-icon {
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <h1>🚗 Catálogo de Vehículos</h1>
+                <p>Inventario completo de vehículos registrados</p>
+            </div>
+            <div class="header-stats">
+                <div class="stat-badge">
+                    <span class="number">{{ vehiculos|length }}</span>
+                    <span class="label">Total Vehículos</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="🔍 Buscar por marca, modelo o ID..." onkeyup="filterVehicles()">
+            </div>
+            <div class="filter-group">
+                <select id="estadoFilter" class="filter-select" onchange="filterVehicles()">
+                    <option value="">Todos los estados</option>
+                    <option value="Disponible">Disponible</option>
+                    <option value="Vendido">Vendido</option>
+                    <option value="Reservado">Reservado</option>
+                    <option value="En Mantenimiento">En Mantenimiento</option>
+                </select>
+                <select id="tipoFilter" class="filter-select" onchange="filterVehicles()">
+                    <option value="">Todos los tipos</option>
+                    <option value="Sedán">Sedán</option>
+                    <option value="SUV">SUV</option>
+                    <option value="Pickup">Pickup</option>
+                    <option value="Hatchback">Hatchback</option>
+                    <option value="Coupé">Coupé</option>
+                </select>
+                <a href="{% url 'analytics' %}" class="btn btn-primary">📊 Ver Análisis</a>
+                <a href="{% url 'index' %}" class="btn btn-secondary">🔙 Volver al Inicio</a>
+            </div>
+        </div>
+
+        <!-- Vehicles Grid -->
+        {% if vehiculos %}
+        <div class="vehicles-grid" id="vehiclesGrid">
+            {% for v in vehiculos %}
+            <div class="vehicle-card" data-marca="{{ v.marca }}" data-modelo="{{ v.modelo }}" data-id="{{ v.id_vehiculo }}" data-estado="{{ v.estado }}" data-tipo="{{ v.tipo }}">
+                <div class="vehicle-header">
+                    <div class="vehicle-id">#{{ v.id_vehiculo }}</div>
+                    <div class="vehicle-status {% if v.estado == 'Disponible' %}disponible{% elif v.estado == 'Vendido' %}vendido{% elif v.estado == 'Reservado' %}reservado{% else %}mantenimiento{% endif %}">
+                        {{ v.estado }}
+                    </div>
+                </div>
+                <div class="vehicle-body">
+                    <div class="type-icon">
+                        {% if v.tipo == 'Sedán' %}🚗
+                        {% elif v.tipo == 'SUV' %}🚙
+                        {% elif v.tipo == 'Pickup' %}🚚
+                        {% elif v.tipo == 'Hatchback' %}🚗
+                        {% elif v.tipo == 'Coupé' %}🏎️
+                        {% else %}🚘
+                        {% endif %}
+                    </div>
+                    <div class="vehicle-title">{{ v.marca }}</div>
+                    <div class="vehicle-subtitle">{{ v.modelo }}</div>
+                    
+                    <div class="vehicle-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Año</span>
+                            <span class="detail-value">{{ v.year }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Tipo</span>
+                            <span class="detail-value">{{ v.tipo }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Cilindraje</span>
+                            <span class="detail-value">{{ v.cilindraje|default:"N/A" }} cc</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Estado</span>
+                            <span class="detail-value">{{ v.estado }}</span>
+                        </div>
+                    </div>
+
+                    <div class="vehicle-price">
+                        <div class="price-label">Precio</div>
+                        <div class="price-value">${{ v.precio|floatformat:2 }}</div>
+                    </div>
+                </div>
+                <div class="vehicle-footer">
+                    <span>📅 {{ v.fecha_registro|date:"d/m/Y" }}</span>
+                    <span>🔑 ID: {{ v.id_vehiculo }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">🚗</div>
+            <h2>No hay vehículos registrados</h2>
+            <p>Comienza cargando tu primer archivo de vehículos</p>
+            <a href="{% url 'index' %}" class="btn btn-primary">📁 Cargar Vehículos</a>
+        </div>
+        {% endif %}
+
+        <!-- Back to top button -->
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="{% url 'index' %}" class="back-link">🏠 Volver al Inicio</a>
+        </div>
+    </div>
+
+    <script>
+        function filterVehicles() {
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            const estadoFilter = document.getElementById('estadoFilter').value.toLowerCase();
+            const tipoFilter = document.getElementById('tipoFilter').value.toLowerCase();
+            const cards = document.querySelectorAll('.vehicle-card');
+
+            let visibleCount = 0;
+
+            cards.forEach(card => {
+                const marca = card.dataset.marca.toLowerCase();
+                const modelo = card.dataset.modelo.toLowerCase();
+                const id = card.dataset.id.toLowerCase();
+                const estado = card.dataset.estado.toLowerCase();
+                const tipo = card.dataset.tipo.toLowerCase();
+
+                const matchesSearch = marca.includes(searchInput) || 
+                                    modelo.includes(searchInput) || 
+                                    id.includes(searchInput);
+                const matchesEstado = !estadoFilter || estado.includes(estadoFilter);
+                const matchesTipo = !tipoFilter || tipo.includes(tipoFilter);
+
+                if (matchesSearch && matchesEstado && matchesTipo) {
+                    card.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            // Update stats badge
+            const statBadge = document.querySelector('.stat-badge .number');
+            if (statBadge) {
+                statBadge.textContent = visibleCount;
+            }
+        }
+
+        // Smooth scroll to top
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Add loading animation on page load
+        window.addEventListener('load', function() {
+            const cards = document.querySelectorAll('.vehicle-card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '0';
+                    card.style.animation = `fadeIn 0.5s ease forwards`;
+                    card.style.animationDelay = `${index * 0.05}s`;
+                }, 100);
+            });
+        });
+    </script>
+</body>
+</html>

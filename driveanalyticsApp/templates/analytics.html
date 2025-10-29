@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DriveAnalytics - Análisis de Datos</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .nav-buttons {
+            margin-top: 20px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            margin: 5px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-card h3 {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .stat-card .value {
+            color: #667eea;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .stat-card .label {
+            color: #999;
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-card h2 {
+            color: #333;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 350px;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            overflow-x: auto;
+        }
+
+        .table-container h2 {
+            color: #333;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .no-data {
+            background: white;
+            border-radius: 15px;
+            padding: 50px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .no-data h2 {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .no-data p {
+            color: #999;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 1200px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-container {
+                height: 300px;
+            }
+        }
+
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .inventory-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .inventory-item h4 {
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+
+        .inventory-item .count {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .inventory-item .value {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        .inventory-item .percentage {
+            font-size: 0.85rem;
+            margin-top: 5px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 DriveAnalytics - Análisis de Datos</h1>
+            <p>Dashboard de Inteligencia de Negocios</p>
+            <div class="nav-buttons">
+                <a href="{% url 'index' %}" class="btn btn-primary">🏠 Inicio</a>
+                <a href="{% url 'lista_vehiculos' %}" class="btn btn-success">🚗 Ver Vehículos</a>
+            </div>
+        </div>
+
+        {% if no_data %}
+            <div class="no-data">
+                <h2>⚠️ No hay datos disponibles</h2>
+                <p>{{ message }}</p>
+                <a href="{% url 'index' %}" class="btn btn-primary">Cargar Datos Ahora</a>
+            </div>
+        {% else %}
+            <!-- KPIs Principales -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>📈 Total Vehículos</h3>
+                    <div class="value">{{ total_vehiculos }}</div>
+                    <div class="label">Unidades en inventario</div>
+                </div>
+                <div class="stat-card">
+                    <h3>💰 Valor Total Inventario</h3>
+                    <div class="value">${{ precios_stats.precio_total|floatformat:0 }}</div>
+                    <div class="label">Valor total del inventario</div>
+                </div>
+                <div class="stat-card">
+                    <h3>📊 Precio Promedio</h3>
+                    <div class="value">${{ precios_stats.precio_promedio|floatformat:0 }}</div>
+                    <div class="label">Por vehículo</div>
+                </div>
+                <div class="stat-card">
+                    <h3>🔝 Precio Máximo</h3>
+                    <div class="value">${{ precios_stats.precio_maximo|floatformat:0 }}</div>
+                    <div class="label">Vehículo más costoso</div>
+                </div>
+            </div>
+
+            <!-- Inventario por Estado -->
+            <div class="table-container">
+                <h2>📦 Inventario por Estado</h2>
+                <div class="inventory-grid">
+                    {% for item in inventario_estado %}
+                    <div class="inventory-item">
+                        <h4>{{ item.estado }}</h4>
+                        <div class="count">{{ item.cantidad }}</div>
+                        <div class="value">${{ item.valor_total|floatformat:0 }}</div>
+                        <div class="percentage">{{ item.porcentaje }}% del total</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Gráficos -->
+            <div class="charts-grid">
+                <!-- Distribución por Marca -->
+                <div class="chart-card">
+                    <h2>🏭 Top 10 Marcas</h2>
+                    <div class="chart-container">
+                        <canvas id="marcasChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Distribución por Tipo -->
+                <div class="chart-card">
+                    <h2>🚙 Distribución por Tipo</h2>
+                    <div class="chart-container">
+                        <canvas id="tiposChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Distribución por Estado -->
+                <div class="chart-card">
+                    <h2>📊 Estado del Inventario</h2>
+                    <div class="chart-container">
+                        <canvas id="estadosChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Distribución por Año -->
+                <div class="chart-card">
+                    <h2>📅 Vehículos por Año</h2>
+                    <div class="chart-container">
+                        <canvas id="yearsChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Rangos de Precio -->
+                <div class="chart-card">
+                    <h2>💵 Distribución de Precios</h2>
+                    <div class="chart-container">
+                        <canvas id="preciosChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Distribución por Cilindraje -->
+                <div class="chart-card">
+                    <h2>⚙️ Distribución por Cilindraje</h2>
+                    <div class="chart-container">
+                        <canvas id="cilindrajeChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Valor por Marca -->
+                <div class="chart-card full-width">
+                    <h2>💰 Valor Total por Marca (Top 10)</h2>
+                    <div class="chart-container">
+                        <canvas id="valorMarcasChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Precio Promedio por Tipo -->
+                <div class="chart-card full-width">
+                    <h2>📈 Precio Promedio por Tipo de Vehículo</h2>
+                    <div class="chart-container">
+                        <canvas id="precioTipoChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de Modelos Más Valiosos -->
+            <div class="table-container">
+                <h2>💎 Top 10 Vehículos Más Valiosos</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Marca</th>
+                            <th>Modelo</th>
+                            <th>Año</th>
+                            <th>Precio</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for modelo in modelos_valiosos %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ modelo.marca }}</td>
+                            <td>{{ modelo.modelo }}</td>
+                            <td>{{ modelo.year }}</td>
+                            <td>${{ modelo.precio_max|floatformat:2 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+
+    {% if not no_data %}
+    <script>
+        // Colores para los gráficos
+        const colors = {
+            primary: ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#43e97b', '#fa709a', '#fee140', '#30cfd0', '#a8edea', '#fed6e3'],
+            gradient1: 'rgba(102, 126, 234, 0.8)',
+            gradient2: 'rgba(118, 75, 162, 0.8)',
+            border: 'rgba(102, 126, 234, 1)'
+        };
+
+        // Parsear datos del servidor
+        const marcasData = JSON.parse('{{ marcas_data|safe }}');
+        const tiposData = JSON.parse('{{ tipos_data|safe }}');
+        const estadosData = JSON.parse('{{ estados_data|safe }}');
+        const yearsData = JSON.parse('{{ years_data|safe }}');
+        const rangosData = JSON.parse('{{ rangos_data|safe }}');
+        const cilindrajeData = JSON.parse('{{ cilindraje_data|safe }}');
+
+        // Configuración común para gráficos
+        const commonOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'bottom'
+                }
+            }
+        };
+
+        // 1. Gráfico de Marcas (Top 10)
+        new Chart(document.getElementById('marcasChart'), {
+            type: 'bar',
+            data: {
+                labels: marcasData.map(m => m.marca),
+                datasets: [{
+                    label: 'Cantidad de Vehículos',
+                    data: marcasData.map(m => m.cantidad),
+                    backgroundColor: colors.primary,
+                    borderColor: colors.border,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                ...commonOptions,
+                plugins: {
+                    ...commonOptions.plugins,
+                    title: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                }
+            }
+        });
+
+        // 2. Gráfico de Tipos (Pie)
+        new Chart(document.getElementById('tiposChart'), {
+            type: 'doughnut',
+            data: {
+                labels: tiposData.map(t => t.tipo),
+                datasets: [{
+                    data: tiposData.map(t => t.cantidad),
+                    backgroundColor: colors.primary,
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                ...commonOptions,
+                plugins: {
+                    ...commonOptions.plugins,
+                    legend: {
+                        position: 'right'
+                    }
+                }
+            }
+        });
+
+        // 3. Gráfico de Estados (Pie)
+        new Chart(document.getElementById('estadosChart'), {
+            type: 'pie',
+            data: {
+                labels: estadosData.map(e => e.estado),
+                datasets: [{
+                    data: estadosData.map(e => e.cantidad),
+                    backgroundColor: colors.primary,
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: commonOptions
+        });
+
+        // 4. Gráfico de Años (Línea)
+        new Chart(document.getElementById('yearsChart'), {
+            type: 'line',
+            data: {
+                labels: yearsData.map(y => y.year),
+                datasets: [{
+                    label: 'Cantidad',
+                    data: yearsData.map(y => y.cantidad),
+                    borderColor: colors.border,
+                    backgroundColor: colors.gradient1,
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                ...commonOptions,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                }
+            }
+        });
+
+        // 5. Gráfico de Rangos de Precio
+        new Chart(document.getElementById('preciosChart'), {
+            type: 'bar',
+            data: {
+                labels: rangosData.map(r => r.rango),
+                datasets: [{
+                    label: 'Cantidad de Vehículos',
+                    data: rangosData.map(r => r.cantidad),
+                    backgroundColor: colors.gradient1,
+                    borderColor: colors.border,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                ...commonOptions,
+                indexAxis: 'y',
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                }
+            }
+        });
+
+        // 6. Gráfico de Cilindraje
+        new Chart(document.getElementById('cilindrajeChart'), {
+            type: 'doughnut',
+            data: {
+                labels: cilindrajeData.map(c => c.rango),
+                datasets: [{
+                    data: cilindrajeData.map(c => c.cantidad),
+                    backgroundColor: colors.primary,
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: commonOptions
+        });
+
+        // 7. Valor Total por Marca
+        new Chart(document.getElementById('valorMarcasChart'), {
+            type: 'bar',
+            data: {
+                labels: marcasData.map(m => m.marca),
+                datasets: [{
+                    label: 'Valor Total ($)',
+                    data: marcasData.map(m => m.valor_total),
+                    backgroundColor: colors.gradient2,
+                    borderColor: colors.border,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                ...commonOptions,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toLocaleString();
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    ...commonOptions.plugins,
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return 'Valor: $' + context.parsed.y.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // 8. Precio Promedio por Tipo
+        new Chart(document.getElementById('precioTipoChart'), {
+            type: 'bar',
+            data: {
+                labels: tiposData.map(t => t.tipo),
+                datasets: [{
+                    label: 'Precio Promedio ($)',
+                    data: tiposData.map(t => t.precio_promedio),
+                    backgroundColor: colors.primary,
+                    borderColor: colors.border,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                ...commonOptions,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toLocaleString();
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    ...commonOptions.plugins,
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return 'Precio Promedio: $' + context.parsed.y.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+    {% endif %}
+</body>
+</html>
